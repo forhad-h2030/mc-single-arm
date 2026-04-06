@@ -107,11 +107,22 @@ Ntuple variables in HMS hut ntuple ntuple id = 1
 ---------------------
 * same as SHMS except the variables start with "hs" instead of "ps". e.g. psdelta ---> hsdelta 
 
-
 ## Building and Running mc-single-arm (target-field branch)
-Clone your fork and enter the repo: `git clone https://github.com/forhad-h2030/mc-single-arm && cd mc-single-arm`  
-Checkout the `target-field` branch: `git checkout target-field`  
-Load CERN libraries: `module load cernlib/2023`  
-Compile the code: `make`  
-This produces the `mc_single_arm` executable including polarized target field support.  
-Run the simulation: `./mc_single_arm` and enter the input filename when prompted, e.g. `hms_21deg_3p3gev_deut_targ_field` (reads from `infiles` directory).  
+
+# Clone your fork and enter the repo
+git clone https://github.com/forhad-h2030/mc-single-arm
+cd mc-single-arm
+
+# Checkout the target-field branch
+git checkout target-field
+
+# Load CERN libraries
+module load cernlib/2023
+
+# Compile the code
+make
+# This produces the mc_single_arm executable including polarized target field support
+
+# Run the simulation
+./mc_single_arm
+# Enter the input filename when prompted, e.g.: hms_21deg_3p3gev_deut_targ_field (reads from infiles directory)
