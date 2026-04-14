@@ -1,5 +1,13 @@
-#!/bin//tcsh 
+#!/bin/tcsh
+
+set name = $1
+echo "name = $name"
+
 cd src
-mc_single_arm << endofinput >! ../runout/$1.out
+./mc_single_arm << endofinput >! ../runout/$name.out
 $1
 endofinput
+
+cd ..
+source setup.csh
+h2root worksim/$name.rzdat worksim/$name.root
