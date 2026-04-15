@@ -1,13 +1,34 @@
 using namespace std;
-void format_tree(const char* fn_in="worksim/sigma_ex.root", const char* fn_out="worksim/sigma_ex_fmt.root")
+void format_tree(const char* label="sigma_ex")
 {
   const double M_p = 0.938272; // Proton mass
   const double alpha = 1.0/137;
   const double E0     = 8.8;
-  const double p0_sp  = 3.607; // Spectrometer momentum (in GeV/c)
-  const double th0_sp = 6.5; // Spectrometer angle (in degrees)
+
+  string fn_in  = Form("worksim/%s.root", label);
+  string fn_out = Form("worksim/%s_fmt.root", label);
+  //string fn_par = Form("worksim/%s.param", label);
   
-  TFile* file_in = new TFile(fn_in);
+  //ifstream ifs(fn_par.c_str());
+  //map<string, string> map_param;
+  //string key, val;
+  //while (ifs >> key >> val) map_param[key] = val;
+  //ifs.close();
+  //double p0_sp  = stof(map_param["p0_sp" ]); // Spectrometer momentum (GeV)
+  //double th0_sp = stof(map_param["th0_sp"]); // Spectrometer angle (deg)
+  //cout << "p0_sp  = " << p0_sp << "\n"
+  //     << "th0_sp = " << th0_sp << endl;
+  
+  TFile* file_in = new TFile(fn_in.c_str());
+
+  TNamed* obj_p0_sp  = file_in->Get<TNamed>( "p0_sp");
+  TNamed* obj_th0_sp = file_in->Get<TNamed>("th0_sp");
+  
+  double p0_sp  = atof(obj_p0_sp ->GetTitle());
+  double th0_sp = atof(obj_th0_sp->GetTitle());
+  cout << "p0_sp  = " << p0_sp << "\n"
+       << "th0_sp = " << th0_sp << endl;
+  
   TTree* tree_in = (TTree*)file_in->Get("h1411");
 
   // 'psdeltai', 'psyptari', 'psxptari' = dpp_init, dth_init/1000 = dydz_s, dph_init/1000 = dxdz_s
@@ -21,7 +42,10 @@ void format_tree(const char* fn_in="worksim/sigma_ex.root", const char* fn_out="
   float stop_id;
   tree_in->SetBranchAddress("stop_id", &stop_id);
 
-  TFile* file_out = new TFile(fn_out, "RECREATE");
+  TFile* file_out = new TFile(fn_out.c_str(), "RECREATE");
+  obj_p0_sp ->Write();
+  obj_th0_sp->Write();
+  
   TTree* tree_out = new TTree("tree", "");
   tree_out->Branch("dpp" , &dpp , "dpp/F");
   tree_out->Branch("dydz", &dydz, "dydz/F");

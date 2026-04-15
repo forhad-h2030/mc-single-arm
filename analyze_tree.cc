@@ -1,11 +1,22 @@
 using namespace std;
-void analyze_tree(const char* fn_in="worksim/sigma_ex_fmt.root")
+void analyze_tree(const char* label="sigma_ex")
 {
-  TFile* file = new TFile(fn_in);
+  string fn_in = Form("worksim/%s_fmt.root", label);
+  
+  TFile* file = new TFile(fn_in.c_str());
   TTree* tree = (TTree*)file->Get("tree");
 
+  double p0_sp  = atof(file->Get<TNamed>( "p0_sp")->GetTitle());
+  double th0_sp = atof(file->Get<TNamed>("th0_sp")->GetTitle());
+  //cout << "p0_sp, th0_sp  =  " << p0_sp << ", " << th0_sp << endl;
+  
   bool in_acc = true;
-  string label_acc = in_acc ? "In Acceptance" : "All Generated";
+  //string label_acc = in_acc ? "In Acceptance" : "All Generated";
+  //string label_acc = Form("p0_sp = %f, th0_sp = %f, %s", p0_sp, th0_sp, (in_acc ? "In Acceptance" : "All Generated"));
+  ostringstream oss;
+  oss << "p0_sp = " << p0_sp << ",  th0_sp = " << th0_sp << ",  "
+      << (in_acc ? "In Acceptance" : "All Generated");
+  string label_acc = oss.str();
   
   float dpp, dydz, dxdz;
   tree->SetBranchAddress("dpp" , &dpp );
@@ -29,10 +40,10 @@ void analyze_tree(const char* fn_in="worksim/sigma_ex_fmt.root")
   tree->SetBranchAddress("th0" , &th0 );
   tree->SetBranchAddress("phi0", &phi0);
   TH1* h1_p0   = new TH1D("h1_p0"  , "", 100, 0, 10);
-  TH1* h1_th0y = new TH1D("h1_th0y", "", 100, 0, 0.5);
-  TH1* h1_th0  = new TH1D("h1_th0" , "", 100, 0, 0.5);
+  TH1* h1_th0y = new TH1D("h1_th0y", "", 100, 0, TMath::Pi());
+  TH1* h1_th0  = new TH1D("h1_th0" , "", 100, 0, TMath::Pi());
   TH1* h1_phi0 = new TH1D("h1_phi0", "", 100, -TMath::Pi(), TMath::Pi());
-  TH2* h2_p0_th0 = new TH2D("h2_p0_th0", "", 100, 0, 10,  100, 0, 0.5);
+  TH2* h2_p0_th0 = new TH2D("h2_p0_th0", "", 100, 0, 10,  100, 0, TMath::Pi());
   h1_p0    ->SetTitle(Form("%s;p_{0} (GeV);"      , label_acc.c_str()));
   h1_th0y  ->SetTitle(Form("%s;#theta_{0y} (rad);", label_acc.c_str()));
   h1_th0   ->SetTitle(Form("%s;#theta_{0} (rad);" , label_acc.c_str()));
@@ -46,7 +57,7 @@ void analyze_tree(const char* fn_in="worksim/sigma_ex_fmt.root")
   tree->SetBranchAddress("xBj", &xBj);
   TH1* h1_nu     = new TH1D("h1_nu"    , "", 100, 0, 10);
   TH1* h1_W      = new TH1D("h1_W"     , "", 100, 0, 10);
-  TH2* h2_xBj_Q2 = new TH2D("h1_xBj_Q2", "", 100, 0, 1,  100, 0, 5);
+  TH2* h2_xBj_Q2 = new TH2D("h1_xBj_Q2", "", 100, 0, 1,  100, 0, 20);
   h1_nu    ->SetTitle(Form("%s;#nu;", label_acc.c_str()));
   h1_W     ->SetTitle(Form("%s;W;"  , label_acc.c_str()));
   h2_xBj_Q2->SetTitle(Form("%s;x_{Bj};Q^{2} (GeV^{2})", label_acc.c_str()));
@@ -79,28 +90,28 @@ void analyze_tree(const char* fn_in="worksim/sigma_ex_fmt.root")
   }
   /// End of Event Loop ////////////////
   
-  gSystem->Exec("mkdir -p result");
+  gSystem->mkdir(Form("result/%s", label), true);
 
   TCanvas* c1 = new TCanvas("c1", "");
   c1->SetGrid();
 
-  h1_dpp ->Draw();  c1->SaveAs("result/h1_dpp.png");
-  h1_dydz->Draw();  c1->SaveAs("result/h1_dydz.png");
-  h1_dxdz->Draw();  c1->SaveAs("result/h1_dxdz.png");
+  h1_dpp ->Draw();  c1->SaveAs(Form("result/%s/h1_dpp.png", label));
+  h1_dydz->Draw();  c1->SaveAs(Form("result/%s/h1_dydz.png", label));
+  h1_dxdz->Draw();  c1->SaveAs(Form("result/%s/h1_dxdz.png", label));
   
-  h1_stop_id->Draw();  c1->SaveAs("result/h1_stop_id.png");
+  h1_stop_id->Draw();  c1->SaveAs(Form("result/%s/h1_stop_id.png", label));
 
-  h1_p0  ->Draw();  c1->SaveAs("result/h1_p0.png");
-  h1_th0y->Draw();  c1->SaveAs("result/h1_th0y.png");
-  h1_th0 ->Draw();  c1->SaveAs("result/h1_th0.png");
-  h1_phi0->Draw();  c1->SaveAs("result/h1_phi0.png");
+  h1_p0  ->Draw();  c1->SaveAs(Form("result/%s/h1_p0.png", label));
+  h1_th0y->Draw();  c1->SaveAs(Form("result/%s/h1_th0y.png", label));
+  h1_th0 ->Draw();  c1->SaveAs(Form("result/%s/h1_th0.png", label));
+  h1_phi0->Draw();  c1->SaveAs(Form("result/%s/h1_phi0.png", label));
 
-  h1_nu->Draw();  c1->SaveAs("result/h1_nu.png");
-  h1_W ->Draw();  c1->SaveAs("result/h1_W.png");
+  h1_nu->Draw();  c1->SaveAs(Form("result/%s/h1_nu.png", label));
+  h1_W ->Draw();  c1->SaveAs(Form("result/%s/h1_W.png", label));
 
   gStyle->SetOptStat(0);
-  h2_p0_th0->Draw("colz");  c1->SaveAs("result/h2_p0_th0.png");
-  h2_xBj_Q2->Draw("colz");  c1->SaveAs("result/h2_xBj_Q2.png");
+  h2_p0_th0->Draw("colz");  c1->SaveAs(Form("result/%s/h2_p0_th0.png", label));
+  h2_xBj_Q2->Draw("colz");  c1->SaveAs(Form("result/%s/h2_xBj_Q2.png", label));
 
   exit(0);
 }

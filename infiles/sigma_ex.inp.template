@@ -3,8 +3,8 @@
 !------------------------------------------------------------------------------
     40000	Monte-Carlo trials
         2       Spectrometer (1=HMS, 2=SHMS, 3=..)
-     3607	Spectrometer momentum (in MeV/c)
-     6.5	Spectrometer angle (in degrees)C
+     _MOM_SP_	Spectrometer momentum (in MeV/c)
+     _ANG_SP_	Spectrometer angle (in degrees)C
     -15.0	M.C. DP/P  down limit 
      30.0	M.C. DP/P  up   limit 
     -55.0	M.C. Theta ( dy/dz) down limit (mr)

@@ -34,5 +34,5 @@
      1	flag for wire chamber smearing
      1	flag for storing all events (including failed events with stop_id > 0)
      1  flag for using polarized target field
-     0.0     	 target field angle - positive for beam left
+     90.0     	 target field angle - positive for beam left
      trg_field_map.dat            choices, 0 (no field), trg_field_map.dat
