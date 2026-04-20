@@ -1,33 +1,41 @@
 using namespace std;
 void format_tree(const char* label="sigma_ex")
 {
-  const double M_p = 0.938272; // Proton mass
-  const double alpha = 1.0/137;
-  const double E0     = 8.8;
+  const double M_p    = 0.938272; // Proton mass
+  const double alpha  = 1.0/137;
+  const double E_beam = 11.0; // 8.8; // Beam energy
 
   string fn_in  = Form("worksim/%s.root", label);
   string fn_out = Form("worksim/%s_fmt.root", label);
-  //string fn_par = Form("worksim/%s.param", label);
-  
-  //ifstream ifs(fn_par.c_str());
-  //map<string, string> map_param;
-  //string key, val;
-  //while (ifs >> key >> val) map_param[key] = val;
-  //ifs.close();
-  //double p0_sp  = stof(map_param["p0_sp" ]); // Spectrometer momentum (GeV)
-  //double th0_sp = stof(map_param["th0_sp"]); // Spectrometer angle (deg)
-  //cout << "p0_sp  = " << p0_sp << "\n"
-  //     << "th0_sp = " << th0_sp << endl;
   
   TFile* file_in = new TFile(fn_in.c_str());
 
-  TNamed* obj_p0_sp  = file_in->Get<TNamed>( "p0_sp");
-  TNamed* obj_th0_sp = file_in->Get<TNamed>("th0_sp");
-  
-  double p0_sp  = atof(obj_p0_sp ->GetTitle());
-  double th0_sp = atof(obj_th0_sp->GetTitle());
-  cout << "p0_sp  = " << p0_sp << "\n"
-       << "th0_sp = " << th0_sp << endl;
+  TNamed* obj_n_gen   = file_in->Get<TNamed>("n_gen");
+  TNamed* obj_p0_sp   = file_in->Get<TNamed>("p0_sp");
+  TNamed* obj_th0_sp  = file_in->Get<TNamed>("th0_sp");
+  TNamed* obj_dpp_lo  = file_in->Get<TNamed>("dpp_lo");
+  TNamed* obj_dpp_hi  = file_in->Get<TNamed>("dpp_hi");
+  TNamed* obj_dydz_lo = file_in->Get<TNamed>("dydz_lo");
+  TNamed* obj_dydz_hi = file_in->Get<TNamed>("dydz_hi");
+  TNamed* obj_dxdz_lo = file_in->Get<TNamed>("dxdz_lo");
+  TNamed* obj_dxdz_hi = file_in->Get<TNamed>("dxdz_hi");
+
+  int    n_gen   = atoi(obj_n_gen  ->GetTitle());
+  double p0_sp   = atof(obj_p0_sp  ->GetTitle()) / 1000; // MeV -> GeV
+  double th0_sp  = atof(obj_th0_sp ->GetTitle());
+  double dpp_lo  = atof(obj_dpp_lo ->GetTitle());
+  double dpp_hi  = atof(obj_dpp_hi ->GetTitle());
+  double dydz_lo = atof(obj_dydz_lo->GetTitle()) / 1000; // mrad -> rad
+  double dydz_hi = atof(obj_dydz_hi->GetTitle()) / 1000; // mrad -> rad
+  double dxdz_lo = atof(obj_dxdz_lo->GetTitle()) / 1000; // mrad -> rad
+  double dxdz_hi = atof(obj_dxdz_hi->GetTitle()) / 1000; // mrad -> rad
+  cout << "n_gen       = " << n_gen << "\n"
+       << "p0_sp       = " << p0_sp << "\n"
+       << "th0_sp      = " << th0_sp << "\n"
+       << "dpp_lo, hi  = " << dpp_lo << ", " << dpp_hi << "\n"
+       << "dydz_lo, hi = " << dydz_lo << ", " << dydz_hi << "\n"
+       << "dxdz_lo, hi = " << dxdz_lo << ", " << dxdz_hi << endl;
+  double v_gen = (dpp_hi - dpp_lo) * (dydz_hi - dydz_lo) * (dxdz_hi - dxdz_lo);
   
   TTree* tree_in = (TTree*)file_in->Get("h1411");
 
@@ -43,8 +51,15 @@ void format_tree(const char* label="sigma_ex")
   tree_in->SetBranchAddress("stop_id", &stop_id);
 
   TFile* file_out = new TFile(fn_out.c_str(), "RECREATE");
-  obj_p0_sp ->Write();
-  obj_th0_sp->Write();
+  obj_n_gen  ->Write();
+  obj_p0_sp  ->Write();
+  obj_th0_sp ->Write();
+  obj_dpp_lo ->Write();
+  obj_dpp_hi ->Write();
+  obj_dydz_lo->Write();
+  obj_dydz_hi->Write();
+  obj_dxdz_lo->Write();
+  obj_dxdz_hi->Write();
   
   TTree* tree_out = new TTree("tree", "");
   tree_out->Branch("dpp" , &dpp , "dpp/F");
@@ -80,14 +95,15 @@ void format_tree(const char* label="sigma_ex")
     th0y = dydz + th0_sp * TMath::Pi() / 180;
     th0  = acos( cos(th0y)*cos(dxdz) );
     phi0 = atan2f(th0y, dxdz);
-    nu   = E0 - p0;
-    Q2   = 4 * E0 * p0 * sin(th0/2) * sin(th0/2);
+    nu   = E_beam - p0;
+    Q2   = 4 * E_beam * p0 * sin(th0/2) * sin(th0/2);
     W    = sqrt( M_p*M_p + 2*M_p*nu - Q2 );
     xBj  = Q2 / (2 * M_p * nu);
 
-    mott = alpha*alpha * cos(th0/2)*cos(th0/2) * p0 / (4 * pow(E0, 3) * pow(sin(th0/2), 4));
+    mott = alpha*alpha * cos(th0/2)*cos(th0/2) * p0 / (4 * pow(E_beam, 3) * pow(sin(th0/2), 4));
     xsec = mott; // !!TEMP!!
-    weight = xsec / mott;
+    float jacob = (100 * nu) / (2 * E_beam * p0_sp * p0 * xBj);
+    weight = xsec * jacob * v_gen / n_gen;
     
     tree_out->Fill();
   }

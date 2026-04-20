@@ -240,10 +240,11 @@ C          write(*,*) dist0,dist1
 *------------------------------------------------------------------------------
 * load the field map and calculate the magnetic field strength  
 * 
-      SUBROUTINE trgInit (map,theta_e,phi_e,theta_p,phi_p)
+      SUBROUTINE trgInit (map,theta_e,phi_e,theta_p,phi_p,field_mode)
       IMPLICIT NONE
       CHARACTER map*(*)
       REAL*8      theta_e,phi_e,theta_p,phi_p
+      INTEGER*4   field_mode
 * --  read field map (for calculations in the LAB system)
 *
 *     Parameter:
@@ -261,20 +262,25 @@ C          write(*,*) dist0,dist1
 
       REAL*8    B_field_z(nz,nr),B_field_r(nz,nr),zz(nz),rr(nr)
       REAL*8    B_theta_e,B_stheta_e,B_ctheta_e,B_phi_e,B_sphi_e,B_cphi_e 
-      REAL*8    B_theta_p,B_stheta_p,B_ctheta_p,B_phi_p,B_sphi_p,B_cphi_p 
+      REAL*8    B_theta_p,B_stheta_p,B_ctheta_p,B_phi_p,B_sphi_p,B_cphi_p
+      INTEGER*4 FieldMode
        
       COMMON  /trgFieldStrength/ B_field_z,B_field_r,zz,rr
       COMMON  /trgFieldAngles_e/ B_theta_e,B_stheta_e,B_ctheta_e,
      >                           B_phi_e,  B_sphi_e,  B_cphi_e 
       COMMON  /trgFieldAngles_p/ B_theta_p,B_stheta_p,B_ctheta_p,
      >                           B_phi_p,  B_sphi_p,  B_cphi_p 
- 
+      COMMON  /trgFieldMode/     FieldMode
+      
       REAL*8       pi180
       PARAMETER (pi180 = 3.141592653/180.) 
 
       INTEGER ir,iz 
       REAL*8    xx
-  
+
+      FieldMode = field_mode
+      print *,'FieldMode',FieldMode
+      
       B_theta_e  = theta_e
       B_stheta_e = SIN(theta_e*pi180) 
       B_ctheta_e = COS(theta_e*pi180)
@@ -364,13 +370,15 @@ CGAW              B_field_z(iz,ir) = 0.0
       REAL*8    B_field_z(nz,nr),B_field_r(nz,nr),zz(nz),rr(nr)
       REAL*8    B_theta_e,B_stheta_e,B_ctheta_e,B_phi_e,B_sphi_e,B_cphi_e 
       REAL*8    B_theta_p,B_stheta_p,B_ctheta_p,B_phi_p,B_sphi_p,B_cphi_p 
-       
+      INTEGER*4 FieldMode
+      
       COMMON  /trgFieldStrength/ B_field_z,B_field_r,zz,rr
       COMMON  /trgFieldAngles_e/ B_theta_e,B_stheta_e,B_ctheta_e,
      >                           B_phi_e,  B_sphi_e,  B_cphi_e 
       COMMON  /trgFieldAngles_p/ B_theta_p,B_stheta_p,B_ctheta_p,
      >                           B_phi_p,  B_sphi_p,  B_cphi_p 
-
+      COMMON  /trgFieldMode/     FieldMode
+      
       REAL*8 B_tht, B_stht, B_ctht, B_ph, B_sph, B_cph
 
       INTEGER i,j,spect
@@ -394,12 +402,24 @@ CGAW              B_field_z(iz,ir) = 0.0
         B_cph    = B_cphi_p
       endif
 
-     
-      ! rotate to coordinates with z' along field direction
-
-      x(1) =           x_(1)
-      x(2) =  B_stht*x_(3) + B_ctht*x_(2)
-      x(3) =  B_ctht*x_(3) - B_stht*x_(2)  
+    
+      if (FieldMode.eq.0) then
+        ! y-x mode.
+        ! rotate to coordinates with z' along field direction
+        x(1) =           x_(1)
+        x(2) =  B_stht*x_(3) + B_ctht*x_(2)
+        x(3) =  B_ctht*x_(3) - B_stht*x_(2)
+      else if (FieldMode.eq.1) then
+        ! +x mode: x_mag = y_lab, y_mag = z_lab, z_mag = x_lab
+        x(1) = x_(2)
+        x(2) = x_(3)
+        x(3) = x_(1)
+      else
+        ! -x mode.
+        x(1) = -x_(2)
+        x(2) = -x_(3)
+        x(3) = -x_(1)
+      endif
   
       ! compute zylinder coordinates
 
@@ -429,11 +449,23 @@ CGAW              B_field_z(iz,ir) = 0.0
           IF (x(3) .LT. 0.) B(2)= -B(2)
           B(1) = B(2)*x(1)
           B(2) = B(2)*x(2)       
-           
-          ! transform B field to lab. system
-          B_(1) =          B(1)  
-          B_(2) = - B_stht*B(3) + B_ctht*B(2)
-          B_(3) =   B_ctht*B(3) + B_stht*B(2)  
+
+          if (FieldMode.eq.0) then          
+            ! transform B field to lab. system
+            B_(1) =          B(1)  
+            B_(2) = - B_stht*B(3) + B_ctht*B(2)
+            B_(3) =   B_ctht*B(3) + B_stht*B(2)
+          else if (FieldMode.eq.1) then
+            ! +x mode: x_lab = z_mag, y_lab = x_mag, z_lab = y_mag
+            B_(1) = B(3)
+            B_(2) = B(1)
+            B_(3) = B(2)
+          else
+            ! -x mode
+            B_(1) = -B(3)
+            B_(2) = -B(1)
+            B_(3) = -B(2)
+          endif
         ELSE  
           B_(1) =   0.
           B_(2) = - B_stht*B(3)

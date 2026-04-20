@@ -36,3 +36,5 @@
      1  flag for using polarized target field
      0.0     	 target field angle - positive for beam left
      trg_field_map.dat            choices, 0 (no field), trg_field_map.dat
+     1	target field mode (0 = y-z, 1 = +x, -1 = -x)
+

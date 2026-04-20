@@ -6,7 +6,7 @@ N_MOM=${#LIST_MOM[*]}
 N_ANG=${#LIST_ANG[*]}
 echo "N_MOM, N_ANG = $N_MOM, $N_ANG"
 
-for EXY in ex ey ; do
+for EXY in ex ex2 ey ; do
     FN_BASE=infiles/sigma_${EXY}.inp.template
     echo "FN_BASE = $FN_BASE"
     test -e $FN_BASE || continue

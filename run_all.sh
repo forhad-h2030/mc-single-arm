@@ -4,7 +4,7 @@ N_MOM=10
 N_ANG=10
 for (( I_MOM = 0; I_MOM < N_MOM ; I_MOM++ )) ; do
 for (( I_ANG = 0; I_ANG < N_ANG ; I_ANG++ )) ; do
-for EXY in ex ey ; do
+for EXY in ex ex2 ey ; do
     LABEL=$(printf "sigma_${EXY}_p%02i_th%02i" $I_MOM $I_ANG)
     FN_IN="infiles/$LABEL.inp"
     test -e $FN_IN || continue

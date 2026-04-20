@@ -3,11 +3,21 @@
 set name = $1
 echo "name = $name"
 
-#( awk 'NR==6 {print "p0_sp",$1/1000}' infiles/$name.inp ;\
-#  awk 'NR==7 {print "th0_sp",$1}'     infiles/$name.inp ) > worksim/$name.param
-set P0_SP  = `awk 'NR==6 {print $1/1000}' infiles/$name.inp`
-set TH0_SP = `awk 'NR==7 {print $1}'      infiles/$name.inp`
+set LIST_VAL = ( `awk 'NR==4,NR==13 {print $1}' infiles/$name.inp` )
+set N_GEN   = $LIST_VAL[1]
+set P0_SP   = $LIST_VAL[3]
+set TH0_SP  = $LIST_VAL[4]
+set DPP_LO  = $LIST_VAL[5]
+set DPP_HI  = $LIST_VAL[6]
+set DYDZ_LO = $LIST_VAL[7]
+set DYDZ_HI = $LIST_VAL[8]
+set DXDZ_LO = $LIST_VAL[9]
+set DXDZ_HI = $LIST_VAL[10]
+echo "N_GEN          =  $N_GEN"
 echo "P0_SP, TH0_SP  =  $P0_SP, $TH0_SP"
+echo "DPP_LO, HI     =  $DPP_LO, $DPP_HI"
+echo "DYDZ_LO, HI    =  $DYDZ_LO, $DYDZ_HI"
+echo "DXDZ_LO, HI    =  $DXDZ_LO, $DXDZ_HI"
   
 cd src
 ./mc_single_arm << endofinput >! ../runout/$name.out
@@ -20,14 +30,17 @@ h2root worksim/$name.rzdat worksim/$name.root
 
 root -b -l <<EOF
   TFile file("worksim/$name.root", "UPDATE");
-  TNamed l1("p0_sp", "$P0_SP");
-  l1.Write();
-  TNamed l2("th0_sp", "$TH0_SP");
-  l2.Write();
+  TNamed l1("n_gen"  , "$N_GEN"  );  l1.Write();
+  TNamed l2("p0_sp"  , "$P0_SP"  );  l2.Write();
+  TNamed l3("th0_sp" , "$TH0_SP" );  l3.Write();
+  TNamed l4("dpp_lo" , "$DPP_LO" );  l4.Write();
+  TNamed l5("dpp_hi" , "$DPP_HI" );  l5.Write();
+  TNamed l6("dydz_lo", "$DYDZ_LO");  l6.Write();
+  TNamed l7("dydz_hi", "$DYDZ_HI");  l7.Write();
+  TNamed l8("dxdz_lo", "$DXDZ_LO");  l8.Write();
+  TNamed l9("dxdz_hi", "$DXDZ_HI");  l9.Write();
   file.Close();
 EOF
 
 set backslash_quote
 root -b -l -q "format_tree.cc(\"$name\")"
-
-#root -b -l -q "analyze_tree.cc(\"$name\")"
