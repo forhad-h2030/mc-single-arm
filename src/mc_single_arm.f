@@ -85,7 +85,8 @@ C Control flags (from input file)
 	logical*4 wcs_flag
 	logical*4 store_all
 	logical*4 using_tgt_field
-
+	integer*4 tgt_field_mode
+	
 c	common /hutflag/ cer_flag,vac_flag
 C Hardwired control flags.
 	logical*4 hut_ntuple	/.true./
@@ -425,16 +426,21 @@ C Strip off header
 	iss = strip(str_line,tgt_field_file)
 	if(.not.iss) stop 'ERROR (target field file) in setup!'
 
+	read (chanin, 1001) str_line
+	write(*,*),str_line(1:last_char(str_line))
+	if (.not.rd_int(str_line,tgt_field_mode)) 
+     > stop 'ERROR: tgt_field_mode in setup file!'
+	
 !     Read in flag for 'beam energy(MeV)' to trigger on elastic event if present
       beam_energy=-0.1  !by default do not use elastic event generator
       tar_atom_num=12.  !by default it is carbon
       read (chanin,1001,end=1000,err=1000) str_line
-      write(*,*),str_line(1:last_char(str_line))
+      write(*,*) str_line(1:last_char(str_line))
       iss = rd_real(str_line,beam_energy)
       
 ! Read in flag to use sieve
 	read (chanin,1001,end=1000,err=1000) str_line
-	write(*,*),str_line(1:last_char(str_line))
+	write(*,*) str_line(1:last_char(str_line))
 	if (.not.rd_int(str_line,tmp_int)) 
      > stop 'ERROR: use_sieve in setup file!'
 	if (tmp_int.eq.1) then
@@ -445,7 +451,7 @@ C Strip off header
 
 !     Read in flag for 'target atomic number (Z+N)' for elastic event if present
       read (chanin,1001,end=1000,err=1000) str_line
-      write(*,*),str_line(1:last_char(str_line))
+      write(*,*) str_line(1:last_char(str_line))
       iss = rd_real(str_line,tar_atom_num)
 
 
@@ -502,7 +508,7 @@ C Set particle masses.
 
 	   ang_targ = targ_Bangle-th_spec
 
-	   call trgInit(tgt_field_file,ang_targ*degrad,0.,0.,0.)
+	   call trgInit(tgt_field_file,ang_targ*degrad,0.,0.,0.,tgt_field_mode)
 
 	endif
 C------------------------------------------------------------------------------C

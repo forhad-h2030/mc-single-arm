@@ -6,7 +6,7 @@ void analyze_tree(const char* label="sigma_ex")
   TFile* file = new TFile(fn_in.c_str());
   TTree* tree = (TTree*)file->Get("tree");
 
-  double p0_sp  = atof(file->Get<TNamed>( "p0_sp")->GetTitle());
+  double p0_sp  = atof(file->Get<TNamed>( "p0_sp")->GetTitle()) / 1000; // MeV -> GeV
   double th0_sp = atof(file->Get<TNamed>("th0_sp")->GetTitle());
   //cout << "p0_sp, th0_sp  =  " << p0_sp << ", " << th0_sp << endl;
   
