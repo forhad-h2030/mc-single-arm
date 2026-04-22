@@ -42,5 +42,5 @@ root -b -l <<EOF
   file.Close();
 EOF
 
-set backslash_quote
-root -b -l -q "format_tree.cc(\"$name\")"
+#set backslash_quote
+#root -b -l -q "format_tree.cc(\"$name\")"
