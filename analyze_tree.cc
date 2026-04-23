@@ -11,28 +11,26 @@ void analyze_tree(const char* label="sigma_ex")
   //cout << "p0_sp, th0_sp  =  " << p0_sp << ", " << th0_sp << endl;
   
   bool in_acc = true;
-  //string label_acc = in_acc ? "In Acceptance" : "All Generated";
-  //string label_acc = Form("p0_sp = %f, th0_sp = %f, %s", p0_sp, th0_sp, (in_acc ? "In Acceptance" : "All Generated"));
   ostringstream oss;
   oss << "p0_sp = " << p0_sp << ",  th0_sp = " << th0_sp << ",  "
       << (in_acc ? "In Acceptance" : "All Generated");
-  string label_acc = oss.str();
+  string label1 = oss.str();
   
   float dpp, dydz, dxdz;
   tree->SetBranchAddress("dpp" , &dpp );
   tree->SetBranchAddress("dydz", &dydz);
   tree->SetBranchAddress("dxdz", &dxdz);
-  TH1* h1_dpp  = new TH1D("h1_dpp" , "" , 100, -50, 50);
-  TH1* h1_dydz = new TH1D("h1_dydz", "", 100, -0.1, 0.1);
-  TH1* h1_dxdz = new TH1D("h1_dxdz", "", 100, -0.1, 0.1);
-  h1_dpp ->SetTitle(Form("%s;dpp;" , label_acc.c_str()));
-  h1_dydz->SetTitle(Form("%s;dydz;", label_acc.c_str()));
-  h1_dxdz->SetTitle(Form("%s;dxdz;", label_acc.c_str()));
+  TH1* h1_dpp  = new TH1D("h1_dpp" , "", 100, -50, 50);
+  TH1* h1_dydz = new TH1D("h1_dydz", "", 160, -0.16, 0.16);
+  TH1* h1_dxdz = new TH1D("h1_dxdz", "", 150, -0.15, 0.15);
+  h1_dpp ->SetTitle(Form("%s;dpp;" , label1.c_str()));
+  h1_dydz->SetTitle(Form("%s;dydz;", label1.c_str()));
+  h1_dxdz->SetTitle(Form("%s;dxdz;", label1.c_str()));
 
   float stop_id;
   tree->SetBranchAddress("stop_id", &stop_id);
   TH1* h1_stop_id = new TH1D("h1_stop_id", "",  30, -0.5, 29.5);
-  h1_stop_id->SetTitle(Form("%s;SHMS Stop ID;", label_acc.c_str()));
+  h1_stop_id->SetTitle(Form("%s;SHMS Stop ID;", label1.c_str()));
   
   float p0, th0y, th0, phi0;
   tree->SetBranchAddress("p0"  , &p0  );
@@ -44,11 +42,11 @@ void analyze_tree(const char* label="sigma_ex")
   TH1* h1_th0  = new TH1D("h1_th0" , "", 100, 0, TMath::Pi());
   TH1* h1_phi0 = new TH1D("h1_phi0", "", 100, -TMath::Pi(), TMath::Pi());
   TH2* h2_p0_th0 = new TH2D("h2_p0_th0", "", 100, 0, 10,  100, 0, TMath::Pi());
-  h1_p0    ->SetTitle(Form("%s;p_{0} (GeV);"      , label_acc.c_str()));
-  h1_th0y  ->SetTitle(Form("%s;#theta_{0y} (rad);", label_acc.c_str()));
-  h1_th0   ->SetTitle(Form("%s;#theta_{0} (rad);" , label_acc.c_str()));
-  h1_phi0  ->SetTitle(Form("%s;#phi_{0} (rad);"   , label_acc.c_str()));
-  h2_p0_th0->SetTitle(Form("%s;p_{0} (GeV);#theta_{0} (rad)", label_acc.c_str()));
+  h1_p0    ->SetTitle(Form("%s;p_{0} (GeV);"      , label1.c_str()));
+  h1_th0y  ->SetTitle(Form("%s;#theta_{0y} (rad);", label1.c_str()));
+  h1_th0   ->SetTitle(Form("%s;#theta_{0} (rad);" , label1.c_str()));
+  h1_phi0  ->SetTitle(Form("%s;#phi_{0} (rad);"   , label1.c_str()));
+  h2_p0_th0->SetTitle(Form("%s;p_{0} (GeV);#theta_{0} (rad)", label1.c_str()));
   
   float nu, Q2, W, xBj;
   tree->SetBranchAddress("nu" , &nu );
@@ -58,9 +56,9 @@ void analyze_tree(const char* label="sigma_ex")
   TH1* h1_nu     = new TH1D("h1_nu"    , "", 100, 0, 10);
   TH1* h1_W      = new TH1D("h1_W"     , "", 100, 0, 10);
   TH2* h2_xBj_Q2 = new TH2D("h1_xBj_Q2", "", 100, 0, 1,  100, 0, 20);
-  h1_nu    ->SetTitle(Form("%s;#nu;", label_acc.c_str()));
-  h1_W     ->SetTitle(Form("%s;W;"  , label_acc.c_str()));
-  h2_xBj_Q2->SetTitle(Form("%s;x_{Bj};Q^{2} (GeV^{2})", label_acc.c_str()));
+  h1_nu    ->SetTitle(Form("%s;#nu;", label1.c_str()));
+  h1_W     ->SetTitle(Form("%s;W;"  , label1.c_str()));
+  h2_xBj_Q2->SetTitle(Form("%s;x_{Bj};Q^{2} (GeV^{2})", label1.c_str()));
 
   //float mott, xsec, weight;
   // ...to be written...
@@ -92,6 +90,7 @@ void analyze_tree(const char* label="sigma_ex")
   
   gSystem->mkdir(Form("result/%s", label), true);
 
+  gErrorIgnoreLevel = 1111;
   TCanvas* c1 = new TCanvas("c1", "");
   c1->SetGrid();
 
