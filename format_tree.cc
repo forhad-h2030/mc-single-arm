@@ -225,9 +225,13 @@ double GetXSec(TH3* h3, const double xBj, const double Q2, const double phi)
 {
   int ix1, iy1, iz1;
   h3->GetBinXYZ(h3->FindBin(xBj, Q2, phi), ix1, iy1, iz1);
+  if (ix1 == 0 || ix1 > h3->GetNbinsX()) return 0;
+  if (iy1 == 0 || iy1 > h3->GetNbinsY()) return 0;
   int ix2 = (xBj >= h3->GetXaxis()->GetBinCenter(ix1)  ?  ix1+1  :  ix1-1);
   int iy2 = (Q2  >= h3->GetYaxis()->GetBinCenter(iy1)  ?  iy1+1  :  iy1-1);
   //int iz2 = (phi >= h3->GetZaxis()->GetBinCenter(iz1)  ?  iz1+1  :  iz1-1);
+  if (ix2 == 0 || ix2 > h3->GetNbinsX()) return 0;
+  if (iy2 == 0 || iy2 > h3->GetNbinsY()) return 0;
   if (h3->GetBinContent(ix1, iy1, iz1) == 0) return 0;
   if (h3->GetBinContent(ix1, iy2, iz1) == 0) return 0;
   if (h3->GetBinContent(ix2, iy1, iz1) == 0) return 0;
