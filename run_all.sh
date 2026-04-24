@@ -22,6 +22,7 @@ for EXY in ex ex2 ey ; do
     root -b -l -q "format_tree.cc(\"$LABEL\", \"$EXY_TYPE\")"
 
     root -b -l -q "analyze_tree.cc(\"$LABEL\")"
+    root -b -l -q "eval_stat.cc(\"$LABEL\")"
 done
 done
 done
