@@ -1,7 +1,9 @@
 #!/bin/bash
 
-LIST_MOM=( 3000 5000 7500 ) # MeV
-LIST_ANG=( 6.5 25.0 39.0 ) # deg
+#LIST_MOM=( 3000 5000 7500 ) # MeV
+#LIST_ANG=( 6.5 25.0 39.0 ) # deg
+LIST_MOM=( 3000 4000 5000 ) # MeV
+LIST_ANG=( 10.0 15.0 20.0 ) # deg
 N_MOM=${#LIST_MOM[*]}
 N_ANG=${#LIST_ANG[*]}
 echo "N_MOM, N_ANG = $N_MOM, $N_ANG"

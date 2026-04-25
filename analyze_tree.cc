@@ -10,10 +10,12 @@ void analyze_tree(const char* label="sigma_ex")
   double th0_sp = atof(file->Get<TNamed>("th0_sp")->GetTitle());
   //cout << "p0_sp, th0_sp  =  " << p0_sp << ", " << th0_sp << endl;
   
-  bool in_acc = true;
+  const bool in_acc    = true;
+  const bool do_weight = true;
   ostringstream oss;
   oss << "p0_sp = " << p0_sp << ",  th0_sp = " << th0_sp << ",  "
-      << (in_acc ? "In Acceptance" : "All Generated");
+      << (in_acc ? "In Acceptance" : "All Generated")
+      << (do_weight ? ",  Weighted" : "");
   string label1 = oss.str();
   
   float dpp, dydz, dxdz;
@@ -38,10 +40,10 @@ void analyze_tree(const char* label="sigma_ex")
   tree->SetBranchAddress("th0" , &th0 );
   tree->SetBranchAddress("phi0", &phi0);
   TH1* h1_p0   = new TH1D("h1_p0"  , "", 100, 0, 10);
-  TH1* h1_th0y = new TH1D("h1_th0y", "", 100, 0, TMath::Pi());
-  TH1* h1_th0  = new TH1D("h1_th0" , "", 100, 0, TMath::Pi());
-  TH1* h1_phi0 = new TH1D("h1_phi0", "", 100, -TMath::Pi(), TMath::Pi());
-  TH2* h2_p0_th0 = new TH2D("h2_p0_th0", "", 100, 0, 10,  100, 0, TMath::Pi());
+  TH1* h1_th0y = new TH1D("h1_th0y", "", 100, 0, TMath::Pi()/2);
+  TH1* h1_th0  = new TH1D("h1_th0" , "", 100, 0, TMath::Pi()/2);
+  TH1* h1_phi0 = new TH1D("h1_phi0", "", 100, 0, TMath::Pi());
+  TH2* h2_p0_th0 = new TH2D("h2_p0_th0", "", 100, 0, 10,  100, 0, TMath::Pi()/2);
   h1_p0    ->SetTitle(Form("%s;p_{0} (GeV);"      , label1.c_str()));
   h1_th0y  ->SetTitle(Form("%s;#theta_{0y} (rad);", label1.c_str()));
   h1_th0   ->SetTitle(Form("%s;#theta_{0} (rad);" , label1.c_str()));
@@ -60,8 +62,13 @@ void analyze_tree(const char* label="sigma_ex")
   h1_W     ->SetTitle(Form("%s;W;"  , label1.c_str()));
   h2_xBj_Q2->SetTitle(Form("%s;x_{Bj};Q^{2} (GeV^{2})", label1.c_str()));
 
-  //float mott, xsec, weight;
-  // ...to be written...
+  float xsec, weight;
+  tree->SetBranchAddress("xsec"  , &xsec  );
+  tree->SetBranchAddress("weight", &weight);
+  TH1* h1_log_xsec = new TH1D("h1_log_xsec", "", 100, -7, 3);
+  TH1* h1_log_w    = new TH1D("h1_log_w"   , "", 100, -5, 0);
+  h1_log_xsec->SetTitle(Form("%s;log10(xsec);", label1.c_str()));
+  h1_log_w   ->SetTitle(Form("%s;log10(weight);", label1.c_str()));
   
   /// Event Loop ////////////////
   int n_ent = tree->GetEntries();
@@ -69,22 +76,31 @@ void analyze_tree(const char* label="sigma_ex")
   for (int i_ent = 0; i_ent < n_ent; i_ent++) {
     tree->GetEntry(i_ent);
     if (in_acc && stop_id != 0) continue;
-
-    h1_dpp ->Fill(dpp);
-    h1_dydz->Fill(dydz);
-    h1_dxdz->Fill(dxdz);
-
-    h1_stop_id->Fill(stop_id);
     
-    h1_p0    ->Fill(p0  );
-    h1_th0y  ->Fill(th0y);
-    h1_th0   ->Fill(th0 );
-    h1_phi0  ->Fill(phi0);
-    h2_p0_th0->Fill(p0, th0);
+    double ww = 1.0;
+    if (do_weight) {
+      if (weight == 0) continue;
+      ww = weight;
+    }
+    
+    h1_dpp ->Fill(dpp , ww);
+    h1_dydz->Fill(dydz, ww);
+    h1_dxdz->Fill(dxdz, ww);
 
-    h1_nu    ->Fill(nu);
-    h1_W     ->Fill(W);
-    h2_xBj_Q2->Fill(xBj, Q2);
+    h1_stop_id->Fill(stop_id, ww);
+    
+    h1_p0    ->Fill(p0     , ww);
+    h1_th0y  ->Fill(th0y   , ww);
+    h1_th0   ->Fill(th0    , ww);
+    h1_phi0  ->Fill(phi0   , ww);
+    h2_p0_th0->Fill(p0, th0, ww);
+
+    h1_nu    ->Fill(nu     , ww);
+    h1_W     ->Fill(W      , ww);
+    h2_xBj_Q2->Fill(xBj, Q2, ww);
+
+    h1_log_xsec->Fill(log10(xsec));
+    h1_log_w   ->Fill(log10(weight));
   }
   /// End of Event Loop ////////////////
   
@@ -108,6 +124,9 @@ void analyze_tree(const char* label="sigma_ex")
   h1_nu->Draw();  c1->SaveAs(Form("result/%s/h1_nu.png", label));
   h1_W ->Draw();  c1->SaveAs(Form("result/%s/h1_W.png", label));
 
+  h1_log_xsec->Draw();  c1->SaveAs(Form("result/%s/h1_log_xsec.png", label));
+  h1_log_w   ->Draw();  c1->SaveAs(Form("result/%s/h1_log_w.png", label));
+  
   gStyle->SetOptStat(0);
   h2_p0_th0->Draw("colz");  c1->SaveAs(Form("result/%s/h2_p0_th0.png", label));
   h2_xBj_Q2->Draw("colz");  c1->SaveAs(Form("result/%s/h2_xBj_Q2.png", label));
