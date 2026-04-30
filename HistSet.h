@@ -1,11 +1,7 @@
-//const double xBj_lo = 0.1;
-//const double xBj_hi = 0.2;
-//const double  Q2_lo = 1.0;
-//const double  Q2_hi = 2.0;
-const double xBj_lo = 0.17;
-const double xBj_hi = 0.20;
-const double  Q2_lo = 1.4;
-const double  Q2_hi = 1.6;
+double xBj_lo = 0.0;
+double xBj_hi = 1.0;
+double  Q2_lo = 1.0;
+double  Q2_hi = 1e10;
 
 struct HistSet {
   TH1* h1_phi0;

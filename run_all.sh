@@ -17,10 +17,12 @@ for EXY in ex ex2 ey ; do
     echo "================================================================"
     echo "FN_IN = $FN_IN"
     ./run_mc_single_arm $LABEL
-
+    rm worksim/$LABEL.rzdat
+    
     test $EXY = ey && EXY_TYPE=Ey || EXY_TYPE=Ex
     root -b -l -q "format_tree.cc(\"$LABEL\", \"$EXY_TYPE\")"
-
+    rm worksim/$LABEL.root
+    
     root -b -l -q "analyze_tree.cc(\"$LABEL\")"
     root -b -l -q "eval_stat.cc(\"$LABEL\")"
 done

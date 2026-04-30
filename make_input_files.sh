@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "Remove existing inp files."
+rm -f infiles/sigma_e*_p*_th*.inp
+
 #NUM_EV=100000
 NUM_EV=1000000
 echo "NUM_EV = $NUM_EV"
@@ -12,14 +15,18 @@ echo "NUM_EV = $NUM_EV"
 #LIST_ANG=( 10.0 ) # deg
 #LIST_MOM=( 7500 ) # MeV
 #LIST_ANG=( 8.0 10.0 12.0 14.0 ) # deg
-LIST_MOM=( 7500 ) # MeV
-LIST_ANG=( 8.0 ) # deg
+#LIST_MOM=( 7500 ) # MeV
+#LIST_ANG=( 8.0 10.0 12.0 14.0 ) # deg
+#LIST_MOM=( 7500 ) # MeV
+#LIST_ANG=( 8.0 ) # deg
+LIST_MOM=( 3000 ) # MeV
+LIST_ANG=( 8.0 10.0 12.0 14.0 ) # deg
 N_MOM=${#LIST_MOM[*]}
 N_ANG=${#LIST_ANG[*]}
 echo "N_MOM, N_ANG = $N_MOM, $N_ANG"
 
 #ex ex2 ey
-for EXY in ex ey ; do
+for EXY in ex ex2 ey ; do
     FN_BASE=infiles/sigma_${EXY}.inp.template
     echo "FN_BASE = $FN_BASE"
     test -e $FN_BASE || continue
@@ -33,6 +40,3 @@ for EXY in ex ey ; do
     done
     done
 done
-
-## To remove existing files:
-# rm -f infiles/sigma_e*_p*_th*.inp

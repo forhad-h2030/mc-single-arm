@@ -1,20 +1,23 @@
 #include "Lumi.h"
 #include "HistSet.h"
 using namespace std;
-//const double phi0_lo = 1.45;
-//const double phi0_hi = 1.60;
-const double phi0_lo = 1.40;
-const double phi0_hi = 1.70;
 
 //// Main ////
 void calc_asym(const char* kin="p00_th00")
 {
+  xBj_lo = 0.06; // For 3 GeV, 8 deg
+  xBj_hi = 0.09;
+  Q2_lo  = 1.0;
+  Q2_hi  = 1.2;
+  const double phi0_lo = 1.30;
+  const double phi0_hi = 1.50;
+  
   double lumi = GetLumi();
   const double T_MEAS = 24*3600; // s
   double lumi_inte = lumi * T_MEAS; // 1/nb
   cout << "lumi      = " << lumi << " /nb/s\n"
        << "lumi_inte = " << lumi_inte << " /nb\n";
-  
+
   string fn_in_ex = Form("worksim/sigma_ex_%s_fmt.root", kin);
   string fn_in_ey = Form("worksim/sigma_ey_%s_fmt.root", kin);
 
@@ -36,7 +39,8 @@ void calc_asym(const char* kin="p00_th00")
 
   /// Draw yields
   gSystem->mkdir(Form("asym/%s", kin), true);
-
+  ofstream ofs(Form("asym/%s/result.txt", kin));
+  
   gErrorIgnoreLevel = 1111;
   TCanvas* c1 = new TCanvas("c1", "");
   c1->SetGrid();
@@ -52,6 +56,27 @@ void calc_asym(const char* kin="p00_th00")
   hs_ey_all.h1_phi0->Draw();
   hs_ey_acc.h1_phi0->Draw("same");
   c1->SaveAs(Form("asym/%s/h1_phi0_ey.png", kin));
+
+  double phi0_err;
+  double phi0_tot = hs_ex_acc.h1_phi0->IntegralAndError(1, hs_ex_acc.h1_phi0->GetNbinsX(), phi0_err);
+  ofs << "h1_phi0_ex: " << phi0_tot << " +- " << phi0_err << "\n";  
+  phi0_tot = hs_ey_acc.h1_phi0->IntegralAndError(1, hs_ey_acc.h1_phi0->GetNbinsX(), phi0_err);
+  ofs << "h1_phi0_ey: " << phi0_tot << " +- " << phi0_err << "\n";  
+  
+  /// Compute and draw the anticipated stat error
+  TH1* h1_asym_err = (TH1*)hs_ex_acc.h1_phi0->Clone("h1_asym_err");
+  h1_asym_err->Reset();
+  int i_phi0_lo = hs_ex_acc.h1_phi0->FindBin(phi0_lo);
+  int i_phi0_hi = hs_ex_acc.h1_phi0->FindBin(phi0_hi);
+  for (int ib = i_phi0_lo; ib <= i_phi0_hi; ib++) {
+    double n_ex = hs_ex_acc.h1_phi0->GetBinContent(ib);
+    double n_ey = hs_ey_acc.h1_phi0->GetBinContent(ib);
+    h1_asym_err->SetBinContent(ib, 0);
+    h1_asym_err->SetBinError  (ib, 1/sqrt(n_ex + n_ey));
+  }
+  h1_asym_err->Draw("E1");
+  h1_asym_err->GetYaxis()->SetTitle("Anticipated statistical error");
+  c1->SaveAs(Form("asym/%s/h1_asym_err.png", kin));
   
   /// Compute and draw the acceptance factor
   TH1* h1_acc_phi0_ex = (TH1*)hs_ex_acc.h1_phi0->Clone("h1_acc_phi0_ex");
@@ -126,6 +151,7 @@ void calc_asym(const char* kin="p00_th00")
   tex.DrawLatex(0.15, 0.85, Form("Fit range: %.2f < #phi_{0} < %.2f", phi0_lo, phi0_hi));
   
   c1->SaveAs(Form("asym/%s/h1_asym.png", kin));
-  
+
+  ofs.close();
   exit(0);
 }

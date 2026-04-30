@@ -1,14 +1,17 @@
 #include "Lumi.h"
 #include "HistSet.h"
 using namespace std;
-//const double phi0_lo = 1.45;
-//const double phi0_hi = 1.60;
-const double phi0_lo = 1.40;
-const double phi0_hi = 1.70;
 
 //// Main ////
 void calc_asym_multi(const char* kin="p00_th00")
 {
+  xBj_lo = 0.17; // For 7.5 GeV, 8 deg
+  xBj_hi = 0.20;
+  Q2_lo  = 1.4;
+  Q2_hi  = 1.6;
+  const double phi0_lo = 1.40;
+  const double phi0_hi = 1.70;
+  
   double lumi = GetLumi();
   const double T_MEAS = 24*3600; // s
   double lumi_inte = lumi * T_MEAS; // 1/nb
