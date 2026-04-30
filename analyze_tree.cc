@@ -11,7 +11,7 @@ void analyze_tree(const char* label="sigma_ex")
   //cout << "p0_sp, th0_sp  =  " << p0_sp << ", " << th0_sp << endl;
   
   const bool in_acc    = true;
-  const bool do_weight = true;
+  const bool do_weight = false;
   ostringstream oss;
   oss << "p0_sp = " << p0_sp << ",  th0_sp = " << th0_sp << ",  "
       << (in_acc ? "In Acceptance" : "All Generated")
@@ -39,11 +39,11 @@ void analyze_tree(const char* label="sigma_ex")
   tree->SetBranchAddress("th0y", &th0y);
   tree->SetBranchAddress("th0" , &th0 );
   tree->SetBranchAddress("phi0", &phi0);
-  TH1* h1_p0   = new TH1D("h1_p0"  , "", 100, 0, 10);
+  TH1* h1_p0   = new TH1D("h1_p0"  , "", 100, 1, 11);
   TH1* h1_th0y = new TH1D("h1_th0y", "", 100, 0, TMath::Pi()/2);
   TH1* h1_th0  = new TH1D("h1_th0" , "", 100, 0, TMath::Pi()/2);
   TH1* h1_phi0 = new TH1D("h1_phi0", "", 100, 0, TMath::Pi());
-  TH2* h2_p0_th0 = new TH2D("h2_p0_th0", "", 100, 0, 10,  100, 0, TMath::Pi()/2);
+  TH2* h2_p0_th0 = new TH2D("h2_p0_th0", "", 100, 1, 11,  100, 0, TMath::Pi()/2);
   h1_p0    ->SetTitle(Form("%s;p_{0} (GeV);"      , label1.c_str()));
   h1_th0y  ->SetTitle(Form("%s;#theta_{0y} (rad);", label1.c_str()));
   h1_th0   ->SetTitle(Form("%s;#theta_{0} (rad);" , label1.c_str()));

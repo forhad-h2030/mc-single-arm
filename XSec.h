@@ -44,7 +44,7 @@ TH3* ReadXSecFile(const char* Exy)
   vector<double> vec;
   for (auto it = set_xBj.begin(); it != set_xBj.end(); it++) vec.push_back(*it);
   int n_xBj = vec.size();
-  double bin_xBj[99];
+  double bin_xBj[999];
   bin_xBj[0] = vec[0] - (vec[1] - vec[0]) / 2;
   for (auto ii = 0; ii < n_xBj - 1; ii++) bin_xBj[ii+1] = (vec[ii] + vec[ii+1]) / 2;
   bin_xBj[n_xBj] = vec[n_xBj-1] + (vec[n_xBj-1] - vec[n_xBj-2]) / 2;
@@ -55,7 +55,7 @@ TH3* ReadXSecFile(const char* Exy)
   vec.clear();
   for (auto it = set_Q2.begin(); it != set_Q2.end(); it++) vec.push_back(*it);
   int n_Q2 = vec.size();
-  double bin_Q2[99];
+  double bin_Q2[999];
   bin_Q2[0] = vec[0] - (vec[1] - vec[0]) / 2;
   for (auto ii = 0; ii < n_Q2 - 1; ii++) bin_Q2[ii+1] = (vec[ii] + vec[ii+1]) / 2;
   bin_Q2[n_Q2] = vec[n_Q2-1] + (vec[n_Q2-1] - vec[n_Q2-2]) / 2;
@@ -66,7 +66,7 @@ TH3* ReadXSecFile(const char* Exy)
   vec.clear();
   for (auto it = set_phi.begin(); it != set_phi.end(); it++) vec.push_back(*it);
   int n_phi = vec.size();
-  double bin_phi[99];
+  double bin_phi[999];
   bin_phi[0] = vec[0] - (vec[1] - vec[0]) / 2;
   for (auto ii = 0; ii < n_phi - 1; ii++) bin_phi[ii+1] = (vec[ii] + vec[ii+1]) / 2;
   bin_phi[n_phi] = vec[n_phi-1] + (vec[n_phi-1] - vec[n_phi-2]) / 2;

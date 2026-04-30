@@ -29,7 +29,8 @@ void eval_stat(const char* label="sigma_ex")
   TH1* h1_phi0   = new TH1D("h1_phi0", "", 100, 0, TMath::Pi());
   TH1* h1_nu     = new TH1D("h1_nu"    , "", 100, 0, 10);
   TH1* h1_W      = new TH1D("h1_W"     , "", 100, 0, 10);
-  TH2* h2_xBj_Q2 = new TH2D("h1_xBj_Q2", "", 100, 0, 1,  100, 0, 20);
+  //TH2* h2_xBj_Q2 = new TH2D("h1_xBj_Q2", "", 100, 0, 1,  100, 0, 20);
+  TH2* h2_xBj_Q2 = new TH2D("h1_xBj_Q2", "", 30, 0.0, 0.3,  20, 0, 4);
   h1_phi0  ->SetTitle(Form("%s;#phi_{0} (rad);"   , label1.c_str()));
   h1_nu    ->SetTitle(Form("%s;#nu;", label1.c_str()));
   h1_W     ->SetTitle(Form("%s;W;"  , label1.c_str()));
@@ -86,5 +87,12 @@ void eval_stat(const char* label="sigma_ex")
   gStyle->SetOptStat(0);
   h2_xBj_Q2->Draw("colz");  c1->SaveAs(Form("stat/%s/h2_xBj_Q2.png", label));
 
+  double phi0_inte_err;
+  double phi0_inte = h1_phi0->IntegralAndError(1, h1_phi0->GetNbinsX(), phi0_inte_err);
+  
+  ofstream ofs(Form("stat/%s/result.txt", label));
+  ofs << "h1_phi0: " << phi0_inte << " +- " << phi0_inte_err << "\n";
+  ofs.close();
+  
   exit(0);
 }
